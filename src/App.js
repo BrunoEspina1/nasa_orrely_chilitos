@@ -1,4 +1,3 @@
-// Importaciones necesarias
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
@@ -6,13 +5,16 @@ import * as THREE from 'three';
 
 // Componente para dibujar las órbitas como líneas
 function Orbit({ radius }) {
-  const points = [];
-  for (let i = 0; i <= 64; i++) {
-    const angle = (i / 64) * 2 * Math.PI;
-    points.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
-  }
+  const points = useMemo(() => {
+    const temp = [];
+    for (let i = 0; i <= 64; i++) {
+      const angle = (i / 64) * 2 * Math.PI;
+      temp.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
+    }
+    return temp;
+  }, [radius]);
 
-  const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const orbitGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
 
   return (
     <line geometry={orbitGeometry}>
@@ -21,9 +23,77 @@ function Orbit({ radius }) {
   );
 }
 
+// Componente Planet con texturas
 function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObject }) {
   const planetRef = useRef();
   const planetMeshRef = useRef();
+  const [texture, setTexture] = useState(null);
+  const [ringTexture, setRingTexture] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true; // Evita actualizar el estado si el componente está desmontado
+    const loader = new THREE.TextureLoader();
+
+    loader.load(
+      planetData.textureUrl,
+      (loadedTexture) => {
+        if (isMounted) setTexture(loadedTexture);
+      },
+      undefined,
+      (error) => {
+        console.error(`Error al cargar la textura de ${planetData.name}:`, error);
+      }
+    );
+
+    if (planetData.hasRings && planetData.ringTextureUrl) {
+      loader.load(
+        planetData.ringTextureUrl,
+        (loadedRingTexture) => {
+          if (isMounted) setRingTexture(loadedRingTexture);
+        },
+        undefined,
+        (error) => {
+          console.error(`Error al cargar la textura de los anillos de ${planetData.name}:`, error);
+        }
+      );
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [planetData.textureUrl, planetData.ringTextureUrl, planetData.hasRings, planetData.name]);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+
+    // Cargar la textura del planeta
+    loader.load(
+      planetData.textureUrl,
+      (loadedTexture) => {
+        setTexture(loadedTexture);
+      },
+      undefined,
+      (error) => {
+        console.error('Error al cargar la textura:', error);
+      }
+    );
+
+    // Cargar la textura de los anillos si el planeta tiene anillos
+    if (planetData.hasRings && planetData.ringTextureUrl) {
+      loader.load(
+        planetData.ringTextureUrl,
+        (loadedRingTexture) => {
+          setRingTexture(loadedRingTexture);
+        },
+        undefined,
+        (error) => {
+          console.error('Error al cargar la textura de los anillos:', error);
+        }
+      );
+    }
+
+    // No llamamos a dispose() para evitar eliminar texturas compartidas
+  }, [planetData.textureUrl, planetData.ringTextureUrl, planetData.hasRings]);
 
   const handlePlanetClick = () => {
     if (planetRef.current) {
@@ -62,12 +132,17 @@ function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObje
         ref={planetMeshRef}
       >
         <sphereGeometry args={[planetData.size, 32, 32]} />
-        <meshStandardMaterial color={planetData.color} />
+        <meshStandardMaterial map={texture} />
       </mesh>
-      {planetData.hasRings && (
+      {planetData.hasRings && ringTexture && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[planetData.size * 1.2, planetData.size * 2, 32]} />
-          <meshStandardMaterial color={'goldenrod'} side={THREE.DoubleSide} />
+          <ringGeometry args={[planetData.size * 1.2, planetData.size * 2, 64]} />
+          <meshStandardMaterial
+            map={ringTexture}
+            side={THREE.DoubleSide}
+            transparent
+            opacity={0.7}
+          />
         </mesh>
       )}
     </group>
@@ -88,7 +163,6 @@ function AsteroidWithRef({
     parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) / 100000; // Escalar distancia
   const orbitSpeed = 0.05 / (orbitRadius / 10);
 
-  // Usar useMemo para que el ángulo inicial se calcule solo una vez por asteroide
   const initialAngle = useMemo(() => Math.random() * 2 * Math.PI, []);
 
   const handleAsteroidClick = () => {
@@ -105,7 +179,6 @@ function AsteroidWithRef({
     document.body.style.cursor = 'auto';
   };
 
-  // Usar useEffect para guardar la referencia del asteroide en asteroidRefs
   useEffect(() => {
     setAsteroidRefs((prevRefs) => ({ ...prevRefs, [asteroidData.name]: asteroidRef }));
   }, [asteroidData.name, setAsteroidRefs]);
@@ -141,13 +214,12 @@ function CameraController({ selectedObject, orbitControlsRef }) {
   useEffect(() => {
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
       const objectPosition = selectedObject.ref.current.position.clone();
-      const offset = new THREE.Vector3(5, 5, 5); // Ajusta el offset según tus necesidades
+      const offset = new THREE.Vector3(5, 5, 5);
       const desiredCameraPosition = objectPosition.clone().add(offset);
 
       setTargetCameraPosition(desiredCameraPosition);
       setIsMovingToObject(true);
     } else {
-      // Volver a la posición inicial si no hay objeto seleccionado
       const initialPosition = new THREE.Vector3(10, 10, 10);
       setTargetCameraPosition(initialPosition);
       setIsMovingToObject(true);
@@ -188,6 +260,8 @@ function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
         color: 'white',
         zIndex: 10,
         borderRadius: '5px',
+        maxHeight: '80vh',
+        overflowY: 'auto',
       }}
     >
       <h3>Asteroides</h3>
@@ -212,10 +286,10 @@ function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
 }
 
 function SolarSystem() {
-  const [selectedObject, setSelectedObject] = useState(null); // Estado para el objeto seleccionado (planeta o asteroide)
-  const [hoveredObject, setHoveredObject] = useState(null); // Estado para el objeto sobre el que pasamos el mouse
+  const [selectedObject, setSelectedObject] = useState(null);
+  const [hoveredObject, setHoveredObject] = useState(null);
   const [speedMultiplier, setSpeedMultiplier] = useState(1.5);
-  const [asteroidRefs, setAsteroidRefs] = useState({}); // Estado para almacenar referencias de asteroides
+  const [asteroidRefs, setAsteroidRefs] = useState({});
   const orbitControlsRef = useRef();
   const [asteroidsData, setAsteroidsData] = useState([]);
 
@@ -233,11 +307,10 @@ function SolarSystem() {
 
   useEffect(() => {
     const startDate = getCurrentDate();
-    const endDate = startDate;
     const apiKey = 'DEMO_KEY'; // Reemplaza 'DEMO_KEY' con tu propia API key de NASA
 
     fetch(
-      `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${endDate}&api_key=${apiKey}`
+      `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${startDate}&api_key=${apiKey}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -248,16 +321,83 @@ function SolarSystem() {
       });
   }, []);
 
+  // Datos de los planetas con las URLs de las texturas
   const planetsData = [
-    { name: 'Sun', orbitRadius: 0, size: 5, color: 'yellow', orbitSpeed: 0, rotationSpeed: 0.0005 },
-    { name: 'Mercury', orbitRadius: 6.245, size: 0.5, color: 'gray', orbitSpeed: 0.207, rotationSpeed: 0.004 },
-    { name: 'Venus', orbitRadius: 8.485, size: 1.2, color: 'orange', orbitSpeed: 0.0811, rotationSpeed: -0.002 },
-    { name: 'Earth', orbitRadius: 10.0, size: 1.3, color: 'blue', orbitSpeed: 0.05, rotationSpeed: 0.02 },
-    { name: 'Mars', orbitRadius: 12.329, size: 0.7, color: 'red', orbitSpeed: 0.0266, rotationSpeed: 0.018 },
-    { name: 'Jupiter', orbitRadius: 22.804, size: 3, color: 'brown', orbitSpeed: 0.0042, rotationSpeed: 0.04 },
-    { name: 'Saturn', orbitRadius: 30.95, size: 2.5, color: 'goldenrod', orbitSpeed: 0.001698, rotationSpeed: 0.035, hasRings: true },
-    { name: 'Uranus', orbitRadius: 43.818, size: 1.7, color: 'lightblue', orbitSpeed: 0.0005966, rotationSpeed: 0.03 },
-    { name: 'Neptune', orbitRadius: 54.82, size: 1.6, color: 'darkblue', orbitSpeed: 0.000305, rotationSpeed: 0.029 },
+    {
+      name: 'Sun',
+      orbitRadius: 0,
+      size: 3,
+      textureUrl: 'textures/Sun/2k_sun.jpg',
+      orbitSpeed: 0,
+      rotationSpeed: 0.0005,
+    },
+    {
+      name: 'Mercury',
+      orbitRadius: 6.245,
+      size: 0.5,
+      textureUrl: 'textures/Mercury/mercurymap.jpg',
+      orbitSpeed: 0.207,
+      rotationSpeed: 0.004,
+    },
+    {
+      name: 'Venus',
+      orbitRadius: 8.485,
+      size: 1.2,
+      textureUrl: 'textures/Venus/ven0aaa2.jpg',
+      orbitSpeed: 0.0811,
+      rotationSpeed: 0.003,
+    },
+    {
+      name: 'Earth',
+      orbitRadius: 10.0,
+      size: 1.3,
+      textureUrl: 'textures/Earth/ear0xuu2.jpg',
+      orbitSpeed: 0.05,
+      rotationSpeed: 0.002,
+    },
+    {
+      name: 'Mars',
+      orbitRadius: 12.329,
+      size: 0.7,
+      textureUrl: 'textures/Mars/2k_mars.jpg',
+      orbitSpeed: 0.0266,
+      rotationSpeed: 0.018,
+    },
+    {
+      name: 'Jupiter',
+      orbitRadius: 22.804,
+      size: 3,
+      textureUrl: 'textures/Jupiter/jup0vss1.jpg',
+      orbitSpeed: 0.0042,
+      rotationSpeed: 0.002,
+      hasRings: true,
+    },
+    {
+      name: 'Saturn',
+      orbitRadius: 30.95,
+      size: 2.5,
+      textureUrl: 'textures/Saturn/sat0fds1.jpg',
+      ringTextureUrl: 'textures/Saturn/SaturnRings.png', // Asegúrate de tener esta textura
+      orbitSpeed: 0.001698,
+      rotationSpeed: 0.0005,
+      hasRings: true,
+    },
+    {
+      name: 'Uranus',
+      orbitRadius: 43.818,
+      size: 1.7,
+      textureUrl: 'textures/Uranus/uranusmap.jpg',
+      orbitSpeed: 0.0005966,
+      rotationSpeed: 0.03,
+    },
+    {
+      name: 'Neptune',
+      orbitRadius: 54.82,
+      size: 1.6,
+      textureUrl: 'textures/Neptune/neptunemap.jpg',
+      orbitSpeed: 0.000305,
+      rotationSpeed: 0.029,
+    },
   ];
 
   // Función para restablecer la cámara al hacer clic fuera de los objetos
@@ -322,9 +462,11 @@ function SolarSystem() {
           orbitControlsRef={orbitControlsRef}
         />
 
-        {planetsData.filter((planet) => planet.orbitRadius > 0).map((planet, index) => (
-          <Orbit key={`orbit-${index}`} radius={planet.orbitRadius} />
-        ))}
+        {planetsData
+          .filter((planet) => planet.orbitRadius > 0)
+          .map((planet, index) => (
+            <Orbit key={`orbit-${index}`} radius={planet.orbitRadius} />
+          ))}
 
         {planetsData.map((planetData, index) => (
           <Planet
