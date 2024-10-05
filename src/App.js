@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -14,7 +14,10 @@ function Orbit({ radius }) {
     return temp;
   }, [radius]);
 
-  const orbitGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
+  const orbitGeometry = useMemo(
+    () => new THREE.BufferGeometry().setFromPoints(points),
+    [points]
+  );
 
   return (
     <line geometry={orbitGeometry}>
@@ -23,77 +26,34 @@ function Orbit({ radius }) {
   );
 }
 
+// Nuevo componente Ring para manejar los anillos
+// function Ring({ planetData }) {
+//   const ringTexture = useLoader(THREE.TextureLoader, planetData.ringTextureUrl);
+
+//   return (
+//     <mesh rotation={[Math.PI / 2, 0, 0]}>
+//       <ringGeometry args={[planetData.size * 1.2, planetData.size * 2, 64]} />
+//       <meshStandardMaterial
+//         map={ringTexture}
+//         side={THREE.DoubleSide}
+//         transparent
+//         opacity={0.7}
+//       />
+//     </mesh>
+//   );
+// }
+
 // Componente Planet con texturas
-function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObject }) {
+function Planet({
+  planetData,
+  setSelectedObject,
+  speedMultiplier,
+  setHoveredObject,
+}) {
   const planetRef = useRef();
   const planetMeshRef = useRef();
-  const [texture, setTexture] = useState(null);
-  const [ringTexture, setRingTexture] = useState(null);
 
-  useEffect(() => {
-    let isMounted = true; // Evita actualizar el estado si el componente está desmontado
-    const loader = new THREE.TextureLoader();
-
-    loader.load(
-      planetData.textureUrl,
-      (loadedTexture) => {
-        if (isMounted) setTexture(loadedTexture);
-      },
-      undefined,
-      (error) => {
-        console.error(`Error al cargar la textura de ${planetData.name}:`, error);
-      }
-    );
-
-    if (planetData.hasRings && planetData.ringTextureUrl) {
-      loader.load(
-        planetData.ringTextureUrl,
-        (loadedRingTexture) => {
-          if (isMounted) setRingTexture(loadedRingTexture);
-        },
-        undefined,
-        (error) => {
-          console.error(`Error al cargar la textura de los anillos de ${planetData.name}:`, error);
-        }
-      );
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [planetData.textureUrl, planetData.ringTextureUrl, planetData.hasRings, planetData.name]);
-
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-
-    // Cargar la textura del planeta
-    loader.load(
-      planetData.textureUrl,
-      (loadedTexture) => {
-        setTexture(loadedTexture);
-      },
-      undefined,
-      (error) => {
-        console.error('Error al cargar la textura:', error);
-      }
-    );
-
-    // Cargar la textura de los anillos si el planeta tiene anillos
-    if (planetData.hasRings && planetData.ringTextureUrl) {
-      loader.load(
-        planetData.ringTextureUrl,
-        (loadedRingTexture) => {
-          setRingTexture(loadedRingTexture);
-        },
-        undefined,
-        (error) => {
-          console.error('Error al cargar la textura de los anillos:', error);
-        }
-      );
-    }
-
-    // No llamamos a dispose() para evitar eliminar texturas compartidas
-  }, [planetData.textureUrl, planetData.ringTextureUrl, planetData.hasRings]);
+  const texture = useLoader(THREE.TextureLoader, planetData.textureUrl);
 
   const handlePlanetClick = () => {
     if (planetRef.current) {
@@ -115,11 +75,14 @@ function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObje
     const time = clock.getElapsedTime() * speedMultiplier;
     const orbitPosition = time * planetData.orbitSpeed;
 
-    planetRef.current.position.x = planetData.orbitRadius * Math.cos(orbitPosition);
-    planetRef.current.position.z = planetData.orbitRadius * Math.sin(orbitPosition);
+    planetRef.current.position.x =
+      planetData.orbitRadius * Math.cos(orbitPosition);
+    planetRef.current.position.z =
+      planetData.orbitRadius * Math.sin(orbitPosition);
 
     if (planetMeshRef.current) {
-      planetMeshRef.current.rotation.y += planetData.rotationSpeed * speedMultiplier;
+      planetMeshRef.current.rotation.y +=
+        planetData.rotationSpeed * speedMultiplier;
     }
   });
 
@@ -134,17 +97,7 @@ function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObje
         <sphereGeometry args={[planetData.size, 32, 32]} />
         <meshStandardMaterial map={texture} />
       </mesh>
-      {planetData.hasRings && ringTexture && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[planetData.size * 1.2, planetData.size * 2, 64]} />
-          <meshStandardMaterial
-            map={ringTexture}
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      )}
+      {/* {planetData.hasRings && <Ring planetData={planetData} />} */}
     </group>
   );
 }
@@ -160,7 +113,8 @@ function AsteroidWithRef({
   const asteroidRef = useRef();
 
   const orbitRadius =
-    parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) / 100000; // Escalar distancia
+    parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) /
+    100000; // Escalar distancia
   const orbitSpeed = 0.05 / (orbitRadius / 10);
 
   const initialAngle = useMemo(() => Math.random() * 2 * Math.PI, []);
@@ -180,7 +134,10 @@ function AsteroidWithRef({
   };
 
   useEffect(() => {
-    setAsteroidRefs((prevRefs) => ({ ...prevRefs, [asteroidData.name]: asteroidRef }));
+    setAsteroidRefs((prevRefs) => ({
+      ...prevRefs,
+      [asteroidData.name]: asteroidRef,
+    }));
   }, [asteroidData.name, setAsteroidRefs]);
 
   useFrame(({ clock }) => {
@@ -209,7 +166,9 @@ function AsteroidWithRef({
 function CameraController({ selectedObject, orbitControlsRef }) {
   const { camera } = useThree();
   const [isMovingToObject, setIsMovingToObject] = useState(false);
-  const [targetCameraPosition, setTargetCameraPosition] = useState(new THREE.Vector3());
+  const [targetCameraPosition, setTargetCameraPosition] = useState(
+    new THREE.Vector3()
+  );
 
   useEffect(() => {
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
@@ -371,13 +330,14 @@ function SolarSystem() {
       orbitSpeed: 0.0042,
       rotationSpeed: 0.002,
       hasRings: true,
+      //ringTextureUrl: 'textures/Jupiter/jupiter_ring.png', // Asegúrate de tener esta textura
     },
     {
       name: 'Saturn',
       orbitRadius: 30.95,
       size: 2.5,
       textureUrl: 'textures/Saturn/sat0fds1.jpg',
-      ringTextureUrl: 'textures/Saturn/SaturnRings.png', // Asegúrate de tener esta textura
+      //ringTextureUrl: 'textures/Saturn/SaturnRings.png',
       orbitSpeed: 0.001698,
       rotationSpeed: 0.0005,
       hasRings: true,
@@ -389,6 +349,8 @@ function SolarSystem() {
       textureUrl: 'textures/Uranus/uranusmap.jpg',
       orbitSpeed: 0.0005966,
       rotationSpeed: 0.03,
+      hasRings: true,
+      ringTextureUrl: 'textures/Uranus/uranus_ring.png',
     },
     {
       name: 'Neptune',
@@ -397,6 +359,7 @@ function SolarSystem() {
       textureUrl: 'textures/Neptune/neptunemap.jpg',
       orbitSpeed: 0.000305,
       rotationSpeed: 0.029,
+      hasRings: false,
     },
   ];
 
@@ -455,7 +418,14 @@ function SolarSystem() {
         <ambientLight intensity={0.3} />
         <pointLight position={[0, 0, 0]} intensity={1.5} />
         <OrbitControls ref={orbitControlsRef} />
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
+        <Stars
+          radius={100}
+          depth={50}
+          count={5000}
+          factor={4}
+          saturation={0}
+          fade
+        />
 
         <CameraController
           selectedObject={selectedObject}
