@@ -1,131 +1,214 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
-import * as THREE from 'three';
+  import React, { useRef, useEffect, useState } from 'react';
+  import { Canvas, useFrame, useThree } from '@react-three/fiber';
+  import { OrbitControls, Stars } from '@react-three/drei';
+  import * as THREE from 'three';
 
-function Planet({ orbitRadius, color, size, orbitSpeed, setSelectedPlanetRef, hasRings, speedMultiplier }) {
-  const planetRef = useRef();
+  function Planet({ orbitRadius, textureUrl,ringTextureUrl, size, orbitSpeed, setSelectedPlanetRef, hasRings }) {
+    const planetRef = useRef();
+    const [texture, setTexture] = useState(null);
+    const [ringTexture, setRingTexture] = useState(null); // Estado para la textura de los anillos
 
-  const handlePlanetClick = () => {
-    if (planetRef.current) {
-      setSelectedPlanetRef(planetRef);
-    }
-  };
 
-  useFrame(({ clock }) => {
-    const time = clock.getElapsedTime();
-    planetRef.current.position.x = orbitRadius * Math.cos(time * orbitSpeed * speedMultiplier); // Aplicamos el multiplicador de velocidad
-    planetRef.current.position.z = orbitRadius * Math.sin(time * orbitSpeed * speedMultiplier);
-  });
-
-  return (
-    <group ref={planetRef}>
-      <mesh onClick={handlePlanetClick}>
-        <sphereGeometry args={[size, 32, 32]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      {hasRings && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[size * 1.2, size * 2, 32]} />
-          <meshStandardMaterial color={'goldenrod'} side={THREE.DoubleSide} />
-        </mesh>
-      )}
-    </group>
-  );
-}
-
-function CameraController({ selectedPlanetRef, orbitControlsRef }) {
-  const { camera } = useThree();
-  const [isMovingToPlanet, setIsMovingToPlanet] = useState(false);
-  const [targetCameraPosition, setTargetCameraPosition] = useState(new THREE.Vector3());
-
-  useEffect(() => {
-    if (selectedPlanetRef && selectedPlanetRef.current) {
-      const planetPosition = selectedPlanetRef.current.position.clone();
-      const offset = new THREE.Vector3(5, 5, 5);
-      const desiredCameraPosition = planetPosition.clone().add(offset);
-
-      setTargetCameraPosition(desiredCameraPosition);
-      setIsMovingToPlanet(true);
-
-      orbitControlsRef.current.target.copy(planetPosition);
-    } else {
-      setTargetCameraPosition(new THREE.Vector3(10, 10, 10));
-      setIsMovingToPlanet(true);
-
-      orbitControlsRef.current.target.set(0, 0, 0);
-    }
-  }, [selectedPlanetRef]);
-
-  useFrame(() => {
-    if (isMovingToPlanet) {
-      camera.position.lerp(targetCameraPosition, 0.1);
-
-      if (camera.position.distanceTo(targetCameraPosition) < 0.01) {
-        camera.position.copy(targetCameraPosition);
-        setIsMovingToPlanet(false);
+    useEffect(() => {
+      // Cargar la textura usando TextureLoader
+      const loader = new THREE.TextureLoader();
+      
+      // Cargar la textura
+      loader.load(
+        textureUrl,
+        (loadedTexture) => {
+          setTexture(loadedTexture); // Si la carga es exitosa, actualiza el estado
+        },
+        undefined, // Puedes dejar esto como undefined si no necesitas un callback de progreso
+        (error) => {
+          console.error('Error al cargar la textura:', error); // Manejo de errores
+        }
+      );
+      // Cargar la textura para los anillos
+      if (hasRings) {
+        loader.load(
+          ringTextureUrl,
+          (loadedRingTexture) => {
+            setRingTexture(loadedRingTexture);
+          },
+          undefined,
+          (error) => {
+            console.error('Error al cargar la textura de los anillos:', error);
+          }
+        );
       }
 
-      orbitControlsRef.current.update();
-    }
+      return () => {
+        if (texture) {
+          texture.dispose();
+        }
+        if (ringTexture) {
+          ringTexture.dispose();
+        }
+      };
+    }, [textureUrl, ringTextureUrl, hasRings]);
 
-    if (selectedPlanetRef && selectedPlanetRef.current) {
-      const planetPosition = selectedPlanetRef.current.position.clone();
-      orbitControlsRef.current.target.copy(planetPosition);
-      orbitControlsRef.current.update();
-    }
-  });
 
-  return null;
-}
 
-function SolarSystem() {
-  const [selectedPlanetRef, setSelectedPlanetRef] = useState(null);
-  const [speedMultiplier, setSpeedMultiplier] = useState(1.5); // Estado para el multiplicador de velocidad
-  const orbitControlsRef = useRef();
+    const handlePlanetClick = () => {
+      if (planetRef.current) {
+        setSelectedPlanetRef(planetRef);
+      }
+    };
 
-  const handleSpeedChange = (e) => {
-    setSpeedMultiplier(e.target.value);
-  };
+    useFrame(({ clock }) => {
+      const time = clock.getElapsedTime();
+      planetRef.current.position.x = orbitRadius * Math.cos(time * orbitSpeed);
+      planetRef.current.position.z = orbitRadius * Math.sin(time * orbitSpeed);
+    });
 
-  // Datos de los planetas
-  const planetsData = [
-    { name: 'Sun', orbitRadius: 0, size: 2, color: 'yellow', orbitSpeed: 0 },
-    { name: 'Mercury', orbitRadius: 8, size: 0.4, color: 'white', orbitSpeed: 0.24 },
-    { name: 'Venus', orbitRadius: 12, size: 0.6, color: 'orange', orbitSpeed: 0.18 },
-    { name: 'Earth', orbitRadius: 16, size: 0.65, color: 'blue', orbitSpeed: 0.16 },
-    { name: 'Mars', orbitRadius: 21, size: 0.55, color: 'red', orbitSpeed: 0.13 },
-    { name: 'Jupiter', orbitRadius: 35, size: 1.3, color: 'brown', orbitSpeed: 0.05 },
-    { name: 'Saturn', orbitRadius: 55, size: 1.1, color: 'goldenrod', orbitSpeed: 0.03, hasRings: true },
-    { name: 'Uranus', orbitRadius: 80, size: 0.8, color: 'lightblue', orbitSpeed: 0.01 },
-    { name: 'Neptune', orbitRadius: 100, size: 0.8, color: 'darkblue', orbitSpeed: 0.006},
-  ];
+    return (
+      <group ref={planetRef}>
+        <mesh onClick={handlePlanetClick}>
+          <sphereGeometry args={[size, 32, 32]} />
+          <meshStandardMaterial map={texture} />
+        </mesh>
+        {hasRings && (
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[size * 1.2, size * 2, 32]} />
+            <meshStandardMaterial map={ringTexture} side={THREE.DoubleSide} transparent opacity={0.7} /> {/* Aplica la textura de los anillos */}
+          </mesh>
+        )}
+      </group>
+    );
+  }
 
-  return (
-    <div style={{ position: 'relative', height: '100vh' }}>
-      {/* Slider para ajustar la velocidad */}
-      <input
-        type="range"
-        min="0.1"
-        max="5"
-        step="0.1"
-        value={speedMultiplier}
-        onChange={handleSpeedChange}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          width: '300px',
-          zIndex: 1, // Asegura que el slider esté por encima del canvas
-        }}
-      />
+  function CameraController({ selectedPlanetRef, orbitControlsRef }) {
+    const { camera } = useThree();
+    const [isMovingToPlanet, setIsMovingToPlanet] = useState(false);
+    const [targetCameraPosition, setTargetCameraPosition] = useState(new THREE.Vector3());
+
+    useEffect(() => {
+      if (selectedPlanetRef && selectedPlanetRef.current) {
+        const planetPosition = selectedPlanetRef.current.position.clone();
+        const offset = new THREE.Vector3(5, 5, 5);
+        const desiredCameraPosition = planetPosition.clone().add(offset);
+
+        setTargetCameraPosition(desiredCameraPosition);
+        setIsMovingToPlanet(true);
+
+        orbitControlsRef.current.target.copy(planetPosition);
+      } else {
+        setTargetCameraPosition(new THREE.Vector3(10, 10, 10));
+        setIsMovingToPlanet(true);
+
+        orbitControlsRef.current.target.set(0, 0, 0);
+      }
+    }, [selectedPlanetRef]);
+
+    useFrame(() => {
+      if (isMovingToPlanet) {
+        camera.position.lerp(targetCameraPosition, 0.1);
+
+        if (camera.position.distanceTo(targetCameraPosition) < 0.01) {
+          camera.position.copy(targetCameraPosition);
+          setIsMovingToPlanet(false);
+        }
+
+        orbitControlsRef.current.update();
+      }
+
+      if (selectedPlanetRef && selectedPlanetRef.current) {
+        const planetPosition = selectedPlanetRef.current.position.clone();
+        orbitControlsRef.current.target.copy(planetPosition);
+        orbitControlsRef.current.update();
+      }
+    });
+
+    return null;
+  }
+
+  function SolarSystem() {
+    const [selectedPlanetRef, setSelectedPlanetRef] = useState(null);
+    const orbitControlsRef = useRef();
+
+    // Función para restablecer la cámara al hacer clic fuera de los planetas
+    const resetCamera = () => {
+      setSelectedPlanetRef(null);
+    };
+
+    // Datos de los planetas con las URL de las texturas
+    const planetsData = [
+      {
+        name: 'Sun',
+        orbitRadius: 0,
+        size: 2,
+        textureUrl: 'textures/Sun/sunmap.jpg', // Suponiendo que tienes una textura para el sol
+        orbitSpeed: 0,
+      },
+      {
+        name: 'Mercury',
+        orbitRadius: 3,
+        size: 0.2,
+        textureUrl: '/textures/Mercury/mercurymap.jpg',
+        orbitSpeed: 0.04,
+      },
+      {
+        name: 'Venus',
+        orbitRadius: 5,
+        size: 0.5,
+        textureUrl: 'textures/Venus/ven0aaa2.jpg',
+        orbitSpeed: 0.03,
+      },
+      {
+        name: 'Earth',
+        orbitRadius: 7,
+        size: 0.5,
+        textureUrl: 'textures/Earth/ear0xuu2.jpg',
+        orbitSpeed: 0.02,
+      },
+      {
+        name: 'Mars',
+        orbitRadius: 9,
+        size: 0.3,
+        textureUrl: 'textures/Mars/2k_mars.jpg',
+        orbitSpeed: 0.015,
+      },
+      {
+        name: 'Jupiter',
+        orbitRadius: 12,
+        size: 1,
+        textureUrl: 'textures/Jupiter/jup0vss1.jpg',
+        ringTextureUrl: 'textures/Jupiter/JupiterRings.jpg',
+        orbitSpeed: 0.008,
+      },
+      {
+        name: 'Saturn',
+        orbitRadius: 15,
+        size: 0.9,
+        textureUrl: 'textures/Saturn/sat0fds1.jpg',
+        orbitSpeed: 0.006,
+        hasRings: true,
+      },
+      {
+        name: 'Uranus',
+        orbitRadius: 18,
+        size: 0.4,
+        textureUrl: '/textures/Uranus/uranusmap.jpg',
+        orbitSpeed: 0.004,
+      },
+      {
+        name: 'Neptune',
+        orbitRadius: 21,
+        size: 0.4,
+        textureUrl: '/textures/Neptune/neptunemap.jpg',
+        orbitSpeed: 0.002,
+      },
+    ];
+
+    return (
       <Canvas
         camera={{ position: [10, 10, 10], fov: 50 }}
         gl={{ antialias: true, alpha: false }}
-        style={{ background: 'black', height: '100vh' }}
-        onPointerMissed={() => setSelectedPlanetRef(null)}
+        style={{ background: 'black' }}
+        onPointerMissed={resetCamera}
       >
-        <ambientLight intensity={0.3} />
+        <ambientLight intensity={0.2} />
         <pointLight position={[0, 0, 0]} intensity={1.5} />
         <OrbitControls ref={orbitControlsRef} />
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
@@ -140,25 +223,22 @@ function SolarSystem() {
             key={index}
             setSelectedPlanetRef={setSelectedPlanetRef}
             orbitRadius={planetData.orbitRadius}
-            color={planetData.color}
+            textureUrl={planetData.textureUrl} // Pasamos la URL de la textura
             size={planetData.size}
             orbitSpeed={planetData.orbitSpeed}
-            speedMultiplier={speedMultiplier} // Pasamos el multiplicador de velocidad
             hasRings={planetData.hasRings}
           />
         ))}
       </Canvas>
-    </div>
-  );
-};
+    );
+  }
 
+  function App() {
+    return (
+      <div style={{ height: '100vh' }}>
+        <SolarSystem />
+      </div>
+    );
+  }
 
-function App() {
-  return (
-    <div style={{ height: '100vh' }}>
-      <SolarSystem />
-    </div>
-  );
-}
-
-export default App;
+  export default App;
