@@ -1,10 +1,9 @@
-// Importaciones necesarias
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-function Planet({ orbitRadius, color, size, orbitSpeed, setSelectedPlanetRef }) {
+function Planet({ orbitRadius, color, size, orbitSpeed, setSelectedPlanetRef, hasRings }) {
   const planetRef = useRef();
 
   const handlePlanetClick = () => {
@@ -20,10 +19,18 @@ function Planet({ orbitRadius, color, size, orbitSpeed, setSelectedPlanetRef }) 
   });
 
   return (
-    <mesh ref={planetRef} onClick={handlePlanetClick}>
-      <sphereGeometry args={[size, 32, 32]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <group ref={planetRef}>
+      <mesh onClick={handlePlanetClick}>
+        <sphereGeometry args={[size, 32, 32]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {hasRings && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[size * 1.2, size * 2, 32]} />
+          <meshStandardMaterial color={'goldenrod'} side={THREE.DoubleSide} />
+        </mesh>
+      )}
+    </group>
   );
 }
 
@@ -65,10 +72,6 @@ function CameraController({ selectedPlanetRef, orbitControlsRef }) {
     if (selectedPlanetRef && selectedPlanetRef.current) {
       const planetPosition = selectedPlanetRef.current.position.clone();
       orbitControlsRef.current.target.copy(planetPosition);
-
-      // Uncomment below to have the camera slightly follow the planet's movement
-      // camera.position.add(planetPosition.clone().sub(orbitControlsRef.current.target).multiplyScalar(0.1));
-
       orbitControlsRef.current.update();
     }
   });
@@ -135,6 +138,7 @@ function SolarSystem() {
       size: 0.9,
       color: 'goldenrod',
       orbitSpeed: 0.006,
+      hasRings: true, // Añadimos esta propiedad para los anillos
     },
     {
       name: 'Uranus',
@@ -177,6 +181,7 @@ function SolarSystem() {
           color={planetData.color}
           size={planetData.size}
           orbitSpeed={planetData.orbitSpeed}
+          hasRings={planetData.hasRings} // Pasamos la propiedad para mostrar los anillos
         />
       ))}
     </Canvas>
