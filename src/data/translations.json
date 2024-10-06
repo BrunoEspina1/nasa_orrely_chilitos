@@ -1,0 +1,455 @@
+{
+    "solar_system": {
+      "planets": [
+        {
+          "name": {
+            "english": "Mercury",
+            "spanish": "MERCURIO",
+            "zapoteco": "MERCURIU"
+          },
+          "diameter": {
+            "english": "4,880 km",
+            "spanish": "Diámetro: 4,880 km",
+            "zapoteco": "Diámetru stini: 4,880 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "58 million kilometers",
+            "spanish": "Distancia al Sol: 58 millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 58 millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "88 Earth days",
+            "spanish": "Duración de un año en Mercurio: 88 días terrestres",
+            "zapoteco": "Biaʼ rindaa ti iza lu Mercurio: 88 dxi lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "176 Earth days (complete day and night)",
+            "spanish": "Duración de un día en Mercurio: 176 días terrestres (día y noche completos)",
+            "zapoteco": "Duración stiʼ ti dxi lu Mercurio: 176 dxi lu Guidxilayú (guidubi dxi ne gueelaʼ)"
+          },
+          "temperature_max_day": {
+            "english": "430°C (800°F)",
+            "spanish": "Temperatura máxima durante el día: 430°C (800°F)",
+            "zapoteco": "Temperatura jma naroʼbaʼ stiʼ dxi: 430 grados centígrados (800 grados Fahrenheit)"
+          },
+          "temperature_min_night": {
+            "english": "-180°C (-290°F)",
+            "spanish": "Temperatura mínima durante la noche: -180°C (-290°F)",
+            "zapoteco": "Temperatura ni jma nahuiiniʼ ti gueelaʼ: -180°C (-290°F)"
+          },
+          "number_of_moons": {
+            "english": "0 moons",
+            "spanish": "Número de lunas: 0 lunas",
+            "zapoteco": "Número de luna: 0 luna"
+          },
+          "atmosphere": {
+            "english": "No atmosphere, only a thin layer of gases (exosphere)",
+            "spanish": "Atmósfera: No tiene atmósfera, solo una capa delgada de gases (exosfera)",
+            "zapoteco": "Atmósfera: Qué gápani atmósfera, ti capa nahuiiniʼ si de gas (exosfera)"
+          },
+          "age": {
+            "english": "4.5 billion years",
+            "spanish": "Edad del planeta: 4.5 mil millones de años",
+            "zapoteco": "Edad stiʼ planeta riʼ: 4.5 mil millón de iza"
+          },
+          "core_material": {
+            "english": "Iron (85% of the planet's radius)",
+            "spanish": "Material principal del núcleo: Hierro (85% del radio del planeta)",
+            "zapoteco": "Material principal stiʼ núcleo: Hierro (85% de radio stiʼ planeta riʼ)"
+          },
+          "facts": {
+            "english": "It is the closest planet to the Sun, but not the hottest. It has a day that lasts 176 Earth days.",
+            "spanish": "Es el planeta más cercano al Sol, pero no el más caliente. Tiene un día que dura 176 días terrestres.",
+            "zapoteco": "Laani nga planeta ni jma gaxha nuu de Gubidxa, pero no es el más caliente. Nápani ti dxi ni riaana 176 dxi lu Guidxilayú."
+          }
+        },
+        {
+          "name": {
+            "english": "Venus",
+            "spanish": "VENUS",
+            "zapoteco": "VENUS"
+          },
+          "diameter": {
+            "english": "12,104 km",
+            "spanish": "Diámetro: 12,104 km",
+            "zapoteco": "Diámetru stiʼ ni: 12,104 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "108 million kilometers",
+            "spanish": "Distancia al Sol: 108 millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 108 millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "225 Earth days",
+            "spanish": "Duración de un año en Venus: 225 días terrestres",
+            "zapoteco": "Duración stiʼ ti iza lu Venus: 225 dxi lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "243 Earth days",
+            "spanish": "Duración de un día en Venus: 243 días terrestres",
+            "zapoteco": "Biaʼ rindaa ti dxi lu Venus: 243 dxi lu Guidxilayú"
+          },
+          "temperature_average": {
+            "english": "475°C (900°F), hot enough to melt lead!",
+            "spanish": "Temperatura promedio en la superficie: 475°C (900°F), ¡lo suficiente para derretir plomo!",
+            "zapoteco": "¡Temperatura promedio stiʼ superficie stiʼ ni: 475 grados centígrados (900°F), biaʼ caquiiñeʼ para guiree plomo!"
+          },
+          "number_of_moons": {
+            "english": "0 moons",
+            "spanish": "Número de lunas: 0 lunas",
+            "zapoteco": "Número de luna: 0 luna"
+          },
+          "atmosphere": {
+            "english": "Dense, composed of carbon dioxide and clouds of sulfuric acid",
+            "spanish": "Atmósfera: Densa, compuesta de dióxido de carbono y nubes de ácido sulfúrico",
+            "zapoteco": "Atmósfera: Nabé naroʼbaʼ ni, nuu dióxido de carbono ne ácido sulfúrico ndaaniʼ ni."
+          },
+          "active_volcanoes": {
+            "english": "There are thousands of volcanoes, some may be active",
+            "spanish": "Volcanes activos: Hay miles de volcanes, algunos podrían estar activos",
+            "zapoteco": "Volcán ni nuu activu: Nuu mil de volcán, nuu de laacani zanda gaca activu."
+          },
+          "facts": {
+            "english": "It is the hottest planet due to its dense atmosphere. It rotates in the opposite direction to most planets.",
+            "spanish": "Es el planeta más caliente debido a su densa atmósfera. Gira en dirección contraria a la mayoría de los planetas.",
+            "zapoteco": "Laani nga planeta ni jma nananda purtiʼ nabé naroʼbaʼ atmósfera stini. Runi rotar ni lu dirección ni nuu gadxé de stale de ca planeta ca."
+          }
+        },
+        {
+          "name": {
+            "english": "Earth",
+            "spanish": "TIERRA",
+            "zapoteco": "LAYÚ"
+          },
+          "diameter": {
+            "english": "12,760 km",
+            "spanish": "Diámetro: 12,760 km",
+            "zapoteco": "Diámetru stiʼ ni: 12,760 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "150 million kilometers",
+            "spanish": "Distancia al Sol: 150 millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 150 millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "365.25 days",
+            "spanish": "Duración de un año en la Tierra: 365.25 días",
+            "zapoteco": "Biaʼ tiempu rindaa ti iza lu Guidxilayú: 365,25 dxi"
+          },
+          "day_duration": {
+            "english": "23.9 hours",
+            "spanish": "Duración de un día en la Tierra: 23.9 horas",
+            "zapoteco": "Biaʼ rindaa ti dxi lu Guidxilayú: 23,9 hora"
+          },
+          "temperature_average": {
+            "english": "Varies, but the planet is habitable",
+            "spanish": "Temperatura promedio: Varía, pero el planeta es habitable",
+            "zapoteco": "Temperatura promedio: gadxé gadxé ni, peru zanda guibani binni lu planeta riʼ."
+          },
+          "number_of_moons": {
+            "english": "1 moon",
+            "spanish": "Número de lunas: 1 luna",
+            "zapoteco": "Número de beeu: 1 beeu."
+          },
+          "atmosphere": {
+            "english": "78% nitrogen, 21% oxygen",
+            "spanish": "Atmósfera: 78% nitrógeno, 21% oxígeno",
+            "zapoteco": "Atmósfera: 78% nitrógeno, 21% oxígeno"
+          },
+          "surface": {
+            "english": "70% covered with water",
+            "spanish": "Superficie: 70% cubierta de agua",
+            "zapoteco": "Superficie: 70% de laacani dxaʼ nisa"
+          },
+          "facts": {
+            "english": "70% of its surface is covered with water. It is the only known planet to have life.",
+            "spanish": "El 70% de su superficie está cubierta de agua. Es el único planeta conocido que tiene vida.",
+            "zapoteco": "70% de ca guié stini rácani nisa. Laani nga planeta si ni runibiáʼcabe napa guendanabani."
+          }
+        },
+        {
+          "name": {
+            "english": "Mars",
+            "spanish": "MARTE",
+            "zapoteco": "MARTE"
+          },
+          "diameter": {
+            "english": "6,779 km",
+            "spanish": "Diámetro: 6,779 km",
+            "zapoteco": "Diámetru stiʼ ni: 6,779 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "228 million kilometers",
+            "spanish": "Distancia al Sol: 228 millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 228 millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "687 Earth days",
+            "spanish": "Duración de un año en Marte: 687 días terrestres",
+            "zapoteco": "Duración stiʼ ti iza lu Marte: 687 dxi lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "24.6 hours (almost same as Earth)",
+            "spanish": "Duración de un día en Marte: 24.6 horas (casi igual a la Tierra)",
+            "zapoteco": "Biaʼ rindaa ti dxi lu Marte: 24,6 hora (casi biaʼ rindaa Guidxilayú)"
+          },
+          "temperature_average": {
+            "english": "-60°C, but can vary between 20°C and -153°C",
+            "spanish": "Temperatura promedio: -60°C, pero puede variar entre 20°C y -153°C",
+            "zapoteco": "Temperatura promedio: -60°C, peru zanda guiree ni biaʼ 20°C ne -153°C"
+          },
+          "number_of_moons": {
+            "english": "2 moons (Phobos and Deimos)",
+            "spanish": "Número de lunas: 2 (Fobos y Deimos)",
+            "zapoteco": "Número stiʼ ca beeu: 2 (Fobos ne Deimos)"
+          },
+          "atmosphere": {
+            "english": "Very thin, composed mainly of carbon dioxide",
+            "spanish": "Atmósfera: Muy delgada, compuesta principalmente de dióxido de carbono",
+            "zapoteco": "Atmósfera: Nabé nandáʼ ni, jmaruʼ si dióxido de carbono nuu ndaaniʼ ni."
+          },
+          "facts": {
+            "english": "It has two small moons, Phobos and Deimos. Its mountains are the tallest in the solar system (Olympus Mons).",
+            "spanish": "Tiene dos lunas pequeñas, Fobos y Deimos. Sus montañas son las más altas del sistema solar (Monte Olimpo).",
+            "zapoteco": "Nápani chupa beeu huiiniʼ, Fobos ne Deimos. Ca dani stini nga cani jma nasoo nuu lu sistema solar (dani Olimpo)."
+          }
+        },
+        {
+          "name": {
+            "english": "Jupiter",
+            "spanish": "JÚPITER",
+            "zapoteco": "JÚPITER"
+          },
+          "diameter": {
+            "english": "139,820 km",
+            "spanish": "Diámetro: 139,820 km",
+            "zapoteco": "Diámetru stiʼ ni: 139,820 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "778 million kilometers",
+            "spanish": "Distancia al Sol: 778 millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 778 millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "12 Earth years",
+            "spanish": "Duración de un año en Júpiter: 12 años terrestres",
+            "zapoteco": "Biaʼ rindaa ti iza lu Júpiter: 12 iza lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "10 hours",
+            "spanish": "Duración de un día en Júpiter: 10 horas",
+            "zapoteco": "Ti dxi rindaa lu Júpiter: 10 hora"
+          },
+          "number_of_moons": {
+            "english": "95 moons, including the largest: Io, Europa, Ganymede, and Callisto",
+            "spanish": "Número de lunas: 95 lunas, incluidas las más grandes: Ío, Europa, Ganimedes y Calisto",
+            "zapoteco": "Ca beeu ni nuu: 95 beeu, lade cani jma naroʼbaʼ nuu: Io, Europa, Ganimede ne Calisto."
+          },
+          "atmosphere": {
+            "english": "Composed mainly of hydrogen and helium",
+            "spanish": "Atmósfera: Compuesta principalmente de hidrógeno y helio",
+            "zapoteco": "Atmósfera: jmaruʼ si nuu hidrógeno ne helio ndaaniʼ ni."
+          },
+          "great_red_spot": {
+            "english": "Great Red Spot: A giant storm larger than Earth",
+            "spanish": "Gran Mancha Roja: Una tormenta gigante más grande que la Tierra",
+            "zapoteco": "Gran Mancha Roja: Ti tormenta naroʼbaʼ jma naroʼbaʼ que Guidxilayú."
+          },
+          "facts": {
+            "english": "It is the largest planet in the solar system. It has a Great Red Spot, a storm larger than Earth.",
+            "spanish": "Es el planeta más grande del sistema solar. Tiene una Gran Mancha Roja, una tormenta más grande que la Tierra.",
+            "zapoteco": "Laani nga planeta jma naroʼbaʼ ni nuu lu sistema solar. Nápani ti Mancha Roja Naroʼbaʼ, ti tormenta jma naroʼbaʼ que Guidxilayú."
+          }
+        },
+        {
+          "name": {
+            "english": "Saturn",
+            "spanish": "SATURNO",
+            "zapoteco": "SATURNO"
+          },
+          "diameter": {
+            "english": "120,500 km",
+            "spanish": "Diámetro: 120,500 km",
+            "zapoteco": "Diámetru stiʼ ni: 120,500 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "1.4 billion kilometers",
+            "spanish": "Distancia al Sol: 1.4 mil millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 1,4 mil millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "29.4 Earth years",
+            "spanish": "Duración de un año en Saturno: 29.4 años terrestres",
+            "zapoteco": "Duración stiʼ ti iza lu Saturno: 29,4 iza lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "10.7 hours",
+            "spanish": "Duración de un día en Saturno: 10.7 horas",
+            "zapoteco": "Duración stiʼ ti dxi lu Saturno: 10,7 hora"
+          },
+          "number_of_moons": {
+            "english": "146 moons",
+            "spanish": "Número de lunas: 146 lunas",
+            "zapoteco": "Número stiʼ ca beeu: 146 beeu"
+          },
+          "rings": {
+            "english": "Saturn has giant rings made of ice and rock",
+            "spanish": "Anillos: Saturno tiene anillos gigantes formados por trozos de hielo y roca",
+            "zapoteco": "Anillu: Saturno napa anillu naroʼbaʼ ni napa pedazu de hielu ne guié."
+          },
+          "atmosphere": {
+            "english": "Mainly hydrogen and helium",
+            "spanish": "Atmósfera: Principalmente hidrógeno y helio",
+            "zapoteco": "Atmósfera: jmaruʼ si nuu hidrógeno ne helio."
+          },
+          "facts": {
+            "english": "Famous for its impressive rings. It has more than 140 moons.",
+            "spanish": "Es famoso por sus impresionantes anillos. Tiene más de 140 lunas.",
+            "zapoteco": "Nabé runibiáʼ binni ni pur ca anillu stini ni nabé ridxagayaa binni. Nápani jma de 140 luna."
+          }
+        },
+        {
+          "name": {
+            "english": "Uranus",
+            "spanish": "URANO",
+            "zapoteco": "URANO"
+          },
+          "diameter": {
+            "english": "51,118 km",
+            "spanish": "Diámetro: 51,118 km",
+            "zapoteco": "Diámetru stiʼ ni: 51,118 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "2.9 billion kilometers",
+            "spanish": "Distancia al Sol: 2.9 mil millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 2,9 mil millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "84 Earth years",
+            "spanish": "Duración de un año en Urano: 84 años terrestres",
+            "zapoteco": "Duración stiʼ ti iza lu Urano: 84 iza lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "17 hours",
+            "spanish": "Duración de un día en Urano: 17 horas",
+            "zapoteco": "Duración stiʼ ti dxi lu Urano: 17 hora"
+          },
+          "number_of_moons": {
+            "english": "28 moons",
+            "spanish": "Número de lunas: 28 lunas",
+            "zapoteco": "Número stiʼ ca beeu: 28 beeu."
+          },
+          "rings": {
+            "english": "13 thin and faint rings",
+            "spanish": "Anillos: 13 anillos finos y débiles",
+            "zapoteco": "Anillu: 13 anillu delgado ne débil"
+          },
+          "atmosphere": {
+            "english": "Mainly hydrogen, helium, and methane, giving it a blue-green color",
+            "spanish": "Atmósfera: Principalmente hidrógeno, helio y metano, lo que le da su color azul verdoso",
+            "zapoteco": "Atmósfera: jmaruʼ si nuu hidrógeno, helio ne metano, nga runi nápani color azul-verde."
+          },
+          "facts": {
+            "english": "Rotates on its side, causing extreme seasons. It is the coldest planet in the solar system.",
+            "spanish": "Gira de lado, lo que causa estaciones extremas. Es el planeta más frío del sistema solar.",
+            "zapoteco": "Biguetaʼ ni ladu tiica, ne pur nga guca ca temporada extrema. Laani nga planeta ni jma nananda nuu lu sistema solar."
+          }
+        },
+        {
+          "name": {
+            "english": "Neptune",
+            "spanish": "NEPTUNO",
+            "zapoteco": "NEPTUNO"
+          },
+          "diameter": {
+            "english": "49,528 km",
+            "spanish": "Diámetro: 49,528 km",
+            "zapoteco": "Diámetru stini: 49,528 kilómetru"
+          },
+          "distance_to_sun": {
+            "english": "4.5 billion kilometers",
+            "spanish": "Distancia al Sol: 4.5 mil millones de kilómetros",
+            "zapoteco": "Nabé zitu nuu Gubidxa: 4,5 mil millón de kilómetru"
+          },
+          "year_duration": {
+            "english": "165 Earth years",
+            "spanish": "Duración de un año en Neptuno: 165 años terrestres",
+            "zapoteco": "Biaʼ rindaa ti iza lu Neptuno: 165 iza lu Guidxilayú"
+          },
+          "day_duration": {
+            "english": "16 hours",
+            "spanish": "Duración de un día en Neptuno: 16 horas",
+            "zapoteco": "Ti dxi rindaa lu Neptuno: 16 hora"
+          },
+          "number_of_moons": {
+            "english": "14 moons",
+            "spanish": "Número de lunas: 14 lunas",
+            "zapoteco": "Número stiʼ ca beeu: 14 beeu."
+          },
+          "rings": {
+            "english": "Neptune has 5 rings",
+            "spanish": "Anillos: Neptuno tiene 5 anillos",
+            "zapoteco": "Anillu: Neptuno napa 5 anillu."
+          },
+          "atmosphere": {
+            "english": "Composed of hydrogen, helium, and methane, giving it a blue color",
+            "spanish": "Atmósfera: Compuesta de hidrógeno, helio y metano, lo que le da su color azul",
+            "zapoteco": "Atmósfera: Nuu hidrógeno, helio ne metano ndaaniʼ ni, nga runi color azul stini."
+          },
+          "facts": {
+            "english": "It has the fastest winds in the solar system. Its atmosphere has a beautiful blue color due to methane.",
+            "spanish": "Tiene los vientos más rápidos del sistema solar. Su atmósfera tiene un hermoso color azul por el metano.",
+            "zapoteco": "Laani nga ti bi ni jma nagueenda riaba lu sistema solar. Atmósfera stini napa ti color azul sicarú purtiʼ nuu metano ndaaniʼ ni."
+          }
+        }
+      ],
+      "sun": {
+        "name": {
+          "english": "Sun",
+          "spanish": "SOL",
+          "zapoteco": "GUBIDXA"
+        },
+        "diameter": {
+          "english": "1.39 million kilometers",
+          "spanish": "Diámetro: 1.39 millones de kilómetros",
+          "zapoteco": "Diámetru stini: 1,39 millón de kilómetru."
+        },
+        "average_distance_from_earth": {
+          "english": "150 million kilometers",
+          "spanish": "Distancia promedio de la Tierra: 150 millones de kilómetros.",
+          "zapoteco": "Promediu stiʼ Guidxilayú riʼ: 150 millón de kilómetru."
+        },
+        "surface_temperature": {
+          "english": "5,500°C (10,000°F)",
+          "spanish": "Temperatura en la superficie: 5,500°C (10,000°F).",
+          "zapoteco": "Nabé nananda raqué: 5,500 grados centígrados (10,000°F)."
+        },
+        "age": {
+          "english": "4.5 billion years",
+          "spanish": "Edad: 4.5 mil millones de años.",
+          "zapoteco": "Edad: 4,500 millón de iza."
+        },
+        "light_travel_time_to_earth": {
+          "english": "8 minutes and 20 seconds",
+          "spanish": "Duración de la luz solar en llegar a la Tierra: 8 minutos y 20 segundos.",
+          "zapoteco": "Pabiáʼ rindaa biaaniʼ stiʼ Gubidxa para chindá ni lu Guidxilayú: 8 minutu ne 20 segundo."
+        },
+        "current_phase": {
+          "english": "In its 'yellow dwarf' stage.",
+          "spanish": "Fase actual: En su etapa de \"enana amarilla”.",
+          "zapoteco": "Fase actual: Lu etapa «enano amarillu» stiʼ."
+        },
+        "main_material": {
+          "english": "99% of the solar system's mass is in the Sun.",
+          "spanish": "Material principal: 99% de la masa del sistema solar está en el Sol.",
+          "zapoteco": "Material principal: 99% de masa stiʼ sistema solar nuu ni lu Gubidxa."
+        },
+        "facts": {
+          "english": "It is a yellow dwarf star: Although it is the most important star for life on Earth, the Sun is a medium-sized star compared to other stars in the universe. The Sun is mainly composed of hydrogen and helium: approximately 75% of the Sun is hydrogen, and around 24% is helium. The remaining 1% are other heavy elements.",
+          "spanish": "Es una estrella enana amarilla: Aunque es la estrella más importante para la vida en la Tierra, el Sol es una estrella de tamaño mediano en comparación con otras estrellas del universo. El Sol está compuesto principalmente de hidrógeno y helio: Aproximadamente el 75% del Sol es hidrógeno, y alrededor del 24% es helio. El 1% restante son otros elementos pesados.",
+          "zapoteco": "Laani nga ti beleguí enana amarillu: neca laani nga beleguí ni jma risaca para guibani binni lu Guidxilayú, pero el Sol es una estrella de tamaño mediano en comparación con otras estrellas del universo. Gubidxa ca jmaruʼ si napa ni hidrógeno ne helio: biaʼ 75% de Gubidxa ca nga hidrógeno, ne biaʼ 24% nga helio. 1% ni riaana que nga xcaadxi elementu naroʼbaʼ."
+        }
+      }
+    }
+  }
+  
