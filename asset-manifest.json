@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/nasa_orrely_chilitos/static/css/main.e6c13ad2.css",
+    "main.js": "/nasa_orrely_chilitos/static/js/main.3758af30.js",
+    "static/js/453.ae6968d4.chunk.js": "/nasa_orrely_chilitos/static/js/453.ae6968d4.chunk.js",
+    "index.html": "/nasa_orrely_chilitos/index.html",
+    "main.e6c13ad2.css.map": "/nasa_orrely_chilitos/static/css/main.e6c13ad2.css.map",
+    "main.3758af30.js.map": "/nasa_orrely_chilitos/static/js/main.3758af30.js.map",
+    "453.ae6968d4.chunk.js.map": "/nasa_orrely_chilitos/static/js/453.ae6968d4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.3758af30.js"
+  ]
+}
