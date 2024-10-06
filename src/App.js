@@ -617,21 +617,21 @@ function SolarSystem() {
 
   return (
     <div style={{ position: 'relative', height: '100vh' }}>
-      <input
-        type="range"
-        min="1"
-        max="50"
-        step="1"
-        value={speedMultiplier}
-        onChange={handleSpeedChange}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          width: '300px',
-          zIndex: 1,
-        }}
-      />
+        <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 1 }}>
+      <div style={{ marginTop: '5px', fontSize: '14px', color: 'white' }}>
+          Velocidad: x{speedMultiplier.toFixed(1)}
+        </div>
+        <input
+          type="range"
+          min="1"
+          max="50"
+          step="1"
+          value={speedMultiplier}
+          onChange={handleSpeedChange}
+          style={{ width: '300px' }}
+        />
+        
+      </div>
       <button
         onClick={() => setShowAsteroids(!showAsteroids)}
         style={{
@@ -687,7 +687,11 @@ function SolarSystem() {
         <directionalLight position={[100, 100, 100]} intensity={0.5} />
         <directionalLight position={[-100, -100, -100]} intensity={0.5} />
 
-        <OrbitControls ref={orbitControlsRef} />
+        <OrbitControls 
+        ref={orbitControlsRef}
+          minDistance={10}
+          MaxDistance={30}
+        />
         <Stars
           radius={100}
           depth={50}
