@@ -20,12 +20,17 @@ function SolarSystem() {
   const [planetRefs, setPlanetRefs] = useState({});
   const orbitControlsRef = useRef();
   const [asteroidsData, setAsteroidsData] = useState([]);
+  const [language, setLanguage] = useState('spanish'); // Estado para el idioma seleccionado
+
 
   const [tourType, setTourType] = useState(null); // 'planetas', 'asteroides', or null
   const [tourIndex, setTourIndex] = useState(0);
 
   const handleSpeedChange = (e) => {
     setSpeedMultiplier(parseFloat(e.target.value));
+  };
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
   };
 
   const getCurrentDate = () => {
@@ -257,6 +262,29 @@ function SolarSystem() {
         }}
       />
 
+<select
+  value={language}
+  onChange={handleLanguageChange}
+  style={{
+    position: 'absolute',
+    top: '20px', // Ajusta la distancia desde la parte superior según prefieras
+    right: '20px', // Mantenerlo a la derecha de la pantalla
+    zIndex: 1,
+    padding: '5px',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    color: 'white',
+    border: '1px solid #fff',
+    borderRadius: '5px',
+    cursor: 'pointer', // Asegura que el puntero cambie a una mano
+  }}
+>
+  <option value="spanish">Español</option>
+  <option value="zapoteco">Zapoteco</option>
+  <option value="english">English</option>
+</select>
+
+
+
       {/* Mostrar el nombre del objeto sobre el que estamos pasando el mouse */}
       {hoveredObject && (
         <div
@@ -276,9 +304,11 @@ function SolarSystem() {
 
       {/* Mostrar información del planeta o luna seleccionada */}
       <PlanetInfo
-        selectedObject={selectedObject}
-        setSelectedObject={setSelectedObject}
-      />
+  selectedObject={selectedObject}
+  setSelectedObject={setSelectedObject}
+  idioma={language} // Aquí pasamos el valor del idioma, no la función
+/>
+
 
       {/* Reemplazamos AsteroidList con TourList */}
       <TourList
@@ -288,6 +318,7 @@ function SolarSystem() {
         tourIndex={tourIndex}
         setTourIndex={setTourIndex}
         setSelectedObjectByIndex={setSelectedObjectByIndex}
+        idioma={language}
       />
 
       {/* Agregamos el componente Recorridos */}
