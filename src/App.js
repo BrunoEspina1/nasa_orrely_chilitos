@@ -28,15 +28,9 @@ function Orbit({ radius }) {
 }
 
 // Componente Planet con texturas
-function Planet({
-  planetData,
-  setSelectedObject,
-  speedMultiplier,
-  setHoveredObject,
-}) {
+function Planet({ planetData, setSelectedObject, speedMultiplier, setHoveredObject }) {
   const planetRef = useRef();
   const planetMeshRef = useRef();
-
   const texture = useLoader(THREE.TextureLoader, planetData.textureUrl);
 
   const handlePlanetClick = () => {
@@ -58,15 +52,11 @@ function Planet({
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime() * speedMultiplier;
     const orbitPosition = time * planetData.orbitSpeed;
-
-    planetRef.current.position.x =
-      planetData.orbitRadius * Math.cos(orbitPosition);
-    planetRef.current.position.z =
-      planetData.orbitRadius * Math.sin(orbitPosition);
+    planetRef.current.position.x = planetData.orbitRadius * Math.cos(orbitPosition);
+    planetRef.current.position.z = planetData.orbitRadius * Math.sin(orbitPosition);
 
     if (planetMeshRef.current) {
-      planetMeshRef.current.rotation.y +=
-        planetData.rotationSpeed * speedMultiplier;
+      planetMeshRef.current.rotation.y += planetData.rotationSpeed * speedMultiplier;
     }
   });
 
@@ -86,20 +76,10 @@ function Planet({
 }
 
 // Componente para cada asteroide con su referencia
-function AsteroidWithRef({
-  asteroidData,
-  speedMultiplier,
-  setSelectedObject,
-  setHoveredObject,
-  setAsteroidRefs,
-}) {
+function AsteroidWithRef({ asteroidData, speedMultiplier, setSelectedObject, setHoveredObject, setAsteroidRefs }) {
   const asteroidRef = useRef();
-
-  const orbitRadius =
-    parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) /
-    100000; // Escalar distancia
+  const orbitRadius = parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) / 100000;
   const orbitSpeed = 0.05 / (orbitRadius / 10);
-
   const initialAngle = useMemo(() => Math.random() * 2 * Math.PI, []);
 
   const handleAsteroidClick = () => {
@@ -126,10 +106,8 @@ function AsteroidWithRef({
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime() * speedMultiplier;
     const orbitPosition = initialAngle + time * orbitSpeed;
-
     const x = orbitRadius * Math.cos(orbitPosition);
     const z = orbitRadius * Math.sin(orbitPosition);
-
     asteroidRef.current.position.set(x, 0, z);
   });
 
@@ -146,20 +124,55 @@ function AsteroidWithRef({
   );
 }
 
+function CameraZoomIn({ orbitControlsRef }) {
+  const { camera } = useThree();
+  const [isZooming, setIsZooming] = useState(true);
+  
+  // Posición inicial mucho más lejana
+  const initialPosition = new THREE.Vector3(1250, 1250, 1250);
+  
+  // Nueva posición final más lejana
+  const finalPosition = new THREE.Vector3(50, 50, 50); 
+
+  const totalDuration = 2; 
+  const [elapsedTime, setElapsedTime] = useState(0); 
+
+  useEffect(() => {
+    camera.position.copy(initialPosition);
+  }, [camera]);
+
+  useFrame((_, delta) => {
+    if (isZooming) {
+      const timeFactor = elapsedTime / totalDuration;
+      if (timeFactor < 1) {
+        camera.position.lerpVectors(initialPosition, finalPosition, timeFactor);
+        setElapsedTime((prev) => prev + delta);
+      } else {
+        camera.position.copy(finalPosition);
+        setIsZooming(false);
+      }
+
+      camera.lookAt(0, 0, 0); 
+    }
+    if (orbitControlsRef.current) {
+      orbitControlsRef.current.update();
+    }
+  });
+
+  return null;
+}
+
 // Componente para controlar la cámara y seguir al objeto seleccionado
 function CameraController({ selectedObject, orbitControlsRef }) {
   const { camera } = useThree();
   const [isMovingToObject, setIsMovingToObject] = useState(false);
-  const [targetCameraPosition, setTargetCameraPosition] = useState(
-    new THREE.Vector3()
-  );
+  const [targetCameraPosition, setTargetCameraPosition] = useState(new THREE.Vector3());
 
   useEffect(() => {
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
       const objectPosition = selectedObject.ref.current.position.clone();
       const offset = new THREE.Vector3(5, 5, 5);
       const desiredCameraPosition = objectPosition.clone().add(offset);
-
       setTargetCameraPosition(desiredCameraPosition);
       setIsMovingToObject(true);
     } else {
@@ -172,13 +185,11 @@ function CameraController({ selectedObject, orbitControlsRef }) {
   useFrame(() => {
     if (isMovingToObject) {
       camera.position.lerp(targetCameraPosition, 0.1);
-
       if (camera.position.distanceTo(targetCameraPosition) < 0.01) {
         camera.position.copy(targetCameraPosition);
         setIsMovingToObject(false);
       }
     }
-
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
       const objectPosition = selectedObject.ref.current.position;
       if (orbitControlsRef.current) {
@@ -236,7 +247,7 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
   }
 
   const { data } = selectedObject;
-  const isPlanet = data.textureUrl !== undefined; // Verificar si es un planeta
+  const isPlanet = data.textureUrl !== undefined;
 
   return (
     <div
@@ -255,51 +266,19 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
       <h2>{data.name}</h2>
       {isPlanet ? (
         <>
-          <p>
-            <strong>Tamaño:</strong> {data.size}
-          </p>
-          <p>
-            <strong>Radio de Órbita:</strong> {data.orbitRadius}
-          </p>
-          <p>
-            <strong>Velocidad de Rotación:</strong> {data.rotationSpeed}
-          </p>
-          <p>
-            <strong>Velocidad Orbital:</strong> {data.orbitSpeed}
-          </p>
+          <p><strong>Tamaño:</strong> {data.size}</p>
+          <p><strong>Radio de Órbita:</strong> {data.orbitRadius}</p>
+          <p><strong>Velocidad de Rotación:</strong> {data.rotationSpeed}</p>
+          <p><strong>Velocidad Orbital:</strong> {data.orbitSpeed}</p>
         </>
       ) : (
         <>
-          <p>
-            <strong>Diámetro Estimado:</strong>{' '}
-            {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(
-              2
-            )}{' '}
-            km
-          </p>
-          <p>
-            <strong>Distancia de Aproximación:</strong>{' '}
-            {parseFloat(
-              data.close_approach_data[0].miss_distance.kilometers
-            ).toFixed(2)}{' '}
-            km
-          </p>
-          <p>
-            <strong>Velocidad:</strong>{' '}
-            {parseFloat(
-              data.close_approach_data[0].relative_velocity
-                .kilometers_per_hour
-            ).toFixed(2)}{' '}
-            km/h
-          </p>
+          <p><strong>Diámetro Estimado:</strong> {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(2)} km</p>
+          <p><strong>Distancia de Aproximación:</strong> {parseFloat(data.close_approach_data[0].miss_distance.kilometers).toFixed(2)} km</p>
+          <p><strong>Velocidad:</strong> {parseFloat(data.close_approach_data[0].relative_velocity.kilometers_per_hour).toFixed(2)} km/h</p>
         </>
       )}
-      <button
-        onClick={() => setSelectedObject(null)}
-        style={{ marginTop: '10px' }}
-      >
-        Cerrar
-      </button>
+      <button onClick={() => setSelectedObject(null)} style={{ marginTop: '10px' }}>Cerrar</button>
     </div>
   );
 }
@@ -328,9 +307,7 @@ function SolarSystem() {
     const startDate = getCurrentDate();
     const apiKey = 'DEMO_KEY'; // Reemplaza 'DEMO_KEY' con tu propia API key de NASA
 
-    fetch(
-      `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${startDate}&api_key=${apiKey}`
-    )
+    fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${startDate}&api_key=${apiKey}`)
       .then((response) => response.json())
       .then((data) => {
         setAsteroidsData(data.near_earth_objects[startDate] || []);
@@ -342,82 +319,15 @@ function SolarSystem() {
 
   // Datos de los planetas con las URLs de las texturas
   const planetsData = [
-    {
-      name: 'Sun',
-      orbitRadius: 0,
-      size: 3,
-      textureUrl: 'textures/Sun/2k_sun.jpg',
-      orbitSpeed: 0,
-      rotationSpeed: 0.0005,
-    },
-    {
-      name: 'Mercury',
-      orbitRadius: 6.245,
-      size: 0.5,
-      textureUrl: 'textures/Mercury/mercurymap.jpg',
-      orbitSpeed: 0.207,
-      rotationSpeed: 0.004,
-    },
-    {
-      name: 'Venus',
-      orbitRadius: 8.485,
-      size: 1.2,
-      textureUrl: 'textures/Venus/ven0aaa2.jpg',
-      orbitSpeed: 0.0811,
-      rotationSpeed: 0.003,
-    },
-    {
-      name: 'Earth',
-      orbitRadius: 10.0,
-      size: 1.3,
-      textureUrl: 'textures/Earth/ear0xuu2.jpg',
-      orbitSpeed: 0.05,
-      rotationSpeed: 0.002,
-    },
-    {
-      name: 'Mars',
-      orbitRadius: 12.329,
-      size: 0.7,
-      textureUrl: 'textures/Mars/2k_mars.jpg',
-      orbitSpeed: 0.0266,
-      rotationSpeed: 0.018,
-    },
-    {
-      name: 'Jupiter',
-      orbitRadius: 22.804,
-      size: 3,
-      textureUrl: 'textures/Jupiter/jup0vss1.jpg',
-      orbitSpeed: 0.0042,
-      rotationSpeed: 0.002,
-      hasRings: true,
-    },
-    {
-      name: 'Saturn',
-      orbitRadius: 30.95,
-      size: 2.5,
-      textureUrl: 'textures/Saturn/sat0fds1.jpg',
-      orbitSpeed: 0.001698,
-      rotationSpeed: 0.0005,
-      hasRings: true,
-    },
-    {
-      name: 'Uranus',
-      orbitRadius: 43.818,
-      size: 1.7,
-      textureUrl: 'textures/Uranus/uranusmap.jpg',
-      orbitSpeed: 0.0005966,
-      rotationSpeed: 0.03,
-      hasRings: true,
-    },
-    {
-      name: 'Neptune',
-      orbitRadius: 54.82,
-      size: 1.6,
-      textureUrl: 'textures/Neptune/neptunemap.jpg',
-      orbitSpeed: 0.000305,
-      rotationSpeed: 0.029,
-      hasRings: false,
-    },
+    { name: 'Sun', orbitRadius: 0, size: 6.0, textureUrl: 'textures/Sun/2k_sun.jpg', orbitSpeed: 0, rotationSpeed: 0.0005 },
+    { name: 'Mercury', orbitRadius: 12.0, size: 0.45, textureUrl: 'textures/Mercury/mercurymap.jpg', orbitSpeed: 0.0047, rotationSpeed: 0.004 },
+    { name: 'Venus', orbitRadius: 18.0, size: 1.125, textureUrl: 'textures/Venus/ven0aaa2.jpg', orbitSpeed: 0.0035, rotationSpeed: 0.003 },
+    { name: 'Earth', orbitRadius: 24.0, size: 1.2, textureUrl: 'textures/Earth/ear0xuu2.jpg', orbitSpeed: 0.003, rotationSpeed: 0.002 },
+    { name: 'Mars', orbitRadius: 30.0, size: 0.6, textureUrl: 'textures/Mars/2k_mars.jpg', orbitSpeed: 0.0024, rotationSpeed: 0.018 },
+    { name: 'Jupiter', orbitRadius: 45.0, size: 3.0, textureUrl: 'textures/Jupiter/jup0vss1.jpg', orbitSpeed: 0.0013, rotationSpeed: 0.002, hasRings: true },
+    { name: 'Saturn', orbitRadius: 67.5, size: 2.7, textureUrl: 'textures/Saturn/sat0fds1.jpg', orbitSpeed: 0.00096, rotationSpeed: 0.0005, hasRings: true },
+    { name: 'Uranus', orbitRadius: 90.0, size: 1.5, textureUrl: 'textures/Uranus/uranusmap.jpg', orbitSpeed: 0.00068, rotationSpeed: 0.03, hasRings: true },
+    { name: 'Neptune', orbitRadius: 112.5, size: 1.425, textureUrl: 'textures/Neptune/neptunemap.jpg', orbitSpeed: 0.00054, rotationSpeed: 0.029 },
   ];
 
   // Función para restablecer la cámara al hacer clic fuera de los objetos
@@ -429,9 +339,9 @@ function SolarSystem() {
     <div style={{ position: 'relative', height: '100vh' }}>
       <input
         type="range"
-        min="0.1"
-        max="5"
-        step="0.1"
+        min="1"
+        max="50"
+        step="1"
         value={speedMultiplier}
         onChange={handleSpeedChange}
         style={{
@@ -461,16 +371,9 @@ function SolarSystem() {
       )}
 
       {/* Mostrar información del planeta seleccionado */}
-      <PlanetInfo
-        selectedObject={selectedObject}
-        setSelectedObject={setSelectedObject}
-      />
+      <PlanetInfo selectedObject={selectedObject} setSelectedObject={setSelectedObject} />
 
-      <AsteroidList
-        asteroids={asteroidsData}
-        setSelectedObject={setSelectedObject}
-        asteroidRefs={asteroidRefs}
-      />
+      <AsteroidList asteroids={asteroidsData} setSelectedObject={setSelectedObject} asteroidRefs={asteroidRefs} />
 
       <Canvas
         camera={{ position: [10, 10, 10], fov: 50 }}
@@ -481,19 +384,12 @@ function SolarSystem() {
         <ambientLight intensity={0.3} />
         <pointLight position={[0, 0, 0]} intensity={1.5} />
         <OrbitControls ref={orbitControlsRef} />
-        <Stars
-          radius={100}
-          depth={50}
-          count={5000}
-          factor={4}
-          saturation={0}
-          fade
-        />
+        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
 
-        <CameraController
-          selectedObject={selectedObject}
-          orbitControlsRef={orbitControlsRef}
-        />
+        {/* Componente de zoom inicial */}
+        <CameraZoomIn orbitControlsRef={orbitControlsRef} />
+
+        <CameraController selectedObject={selectedObject} orbitControlsRef={orbitControlsRef} />
 
         {planetsData
           .filter((planet) => planet.orbitRadius > 0)
