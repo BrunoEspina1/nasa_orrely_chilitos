@@ -1,3 +1,4 @@
+// App.js
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
@@ -25,23 +26,6 @@ function Orbit({ radius }) {
     </line>
   );
 }
-
-// Nuevo componente Ring para manejar los anillos
-// function Ring({ planetData }) {
-//   const ringTexture = useLoader(THREE.TextureLoader, planetData.ringTextureUrl);
-
-//   return (
-//     <mesh rotation={[Math.PI / 2, 0, 0]}>
-//       <ringGeometry args={[planetData.size * 1.2, planetData.size * 2, 64]} />
-//       <meshStandardMaterial
-//         map={ringTexture}
-//         side={THREE.DoubleSide}
-//         transparent
-//         opacity={0.7}
-//       />
-//     </mesh>
-//   );
-// }
 
 // Componente Planet con texturas
 function Planet({
@@ -97,7 +81,6 @@ function Planet({
         <sphereGeometry args={[planetData.size, 32, 32]} />
         <meshStandardMaterial map={texture} />
       </mesh>
-      {/* {planetData.hasRings && <Ring planetData={planetData} />} */}
     </group>
   );
 }
@@ -163,6 +146,7 @@ function AsteroidWithRef({
   );
 }
 
+// Componente para controlar la cámara y seguir al objeto seleccionado
 function CameraController({ selectedObject, orbitControlsRef }) {
   const { camera } = useThree();
   const [isMovingToObject, setIsMovingToObject] = useState(false);
@@ -207,6 +191,7 @@ function CameraController({ selectedObject, orbitControlsRef }) {
   return null;
 }
 
+// Componente para mostrar la lista de asteroides
 function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
   return (
     <div
@@ -240,6 +225,81 @@ function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+// Componente PlanetInfo para mostrar la información del planeta seleccionado
+function PlanetInfo({ selectedObject, setSelectedObject }) {
+  if (!selectedObject || !selectedObject.data) {
+    return null;
+  }
+
+  const { data } = selectedObject;
+  const isPlanet = data.textureUrl !== undefined; // Verificar si es un planeta
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px',
+        padding: '20px',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        color: 'white',
+        zIndex: 10,
+        borderRadius: '5px',
+        width: '300px',
+      }}
+    >
+      <h2>{data.name}</h2>
+      {isPlanet ? (
+        <>
+          <p>
+            <strong>Tamaño:</strong> {data.size}
+          </p>
+          <p>
+            <strong>Radio de Órbita:</strong> {data.orbitRadius}
+          </p>
+          <p>
+            <strong>Velocidad de Rotación:</strong> {data.rotationSpeed}
+          </p>
+          <p>
+            <strong>Velocidad Orbital:</strong> {data.orbitSpeed}
+          </p>
+        </>
+      ) : (
+        <>
+          <p>
+            <strong>Diámetro Estimado:</strong>{' '}
+            {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(
+              2
+            )}{' '}
+            km
+          </p>
+          <p>
+            <strong>Distancia de Aproximación:</strong>{' '}
+            {parseFloat(
+              data.close_approach_data[0].miss_distance.kilometers
+            ).toFixed(2)}{' '}
+            km
+          </p>
+          <p>
+            <strong>Velocidad:</strong>{' '}
+            {parseFloat(
+              data.close_approach_data[0].relative_velocity
+                .kilometers_per_hour
+            ).toFixed(2)}{' '}
+            km/h
+          </p>
+        </>
+      )}
+      <button
+        onClick={() => setSelectedObject(null)}
+        style={{ marginTop: '10px' }}
+      >
+        Cerrar
+      </button>
     </div>
   );
 }
@@ -330,14 +390,12 @@ function SolarSystem() {
       orbitSpeed: 0.0042,
       rotationSpeed: 0.002,
       hasRings: true,
-      //ringTextureUrl: 'textures/Jupiter/jupiter_ring.png', // Asegúrate de tener esta textura
     },
     {
       name: 'Saturn',
       orbitRadius: 30.95,
       size: 2.5,
       textureUrl: 'textures/Saturn/sat0fds1.jpg',
-      //ringTextureUrl: 'textures/Saturn/SaturnRings.png',
       orbitSpeed: 0.001698,
       rotationSpeed: 0.0005,
       hasRings: true,
@@ -350,7 +408,6 @@ function SolarSystem() {
       orbitSpeed: 0.0005966,
       rotationSpeed: 0.03,
       hasRings: true,
-      ringTextureUrl: 'textures/Uranus/uranus_ring.png',
     },
     {
       name: 'Neptune',
@@ -402,6 +459,12 @@ function SolarSystem() {
           {hoveredObject}
         </div>
       )}
+
+      {/* Mostrar información del planeta seleccionado */}
+      <PlanetInfo
+        selectedObject={selectedObject}
+        setSelectedObject={setSelectedObject}
+      />
 
       <AsteroidList
         asteroids={asteroidsData}
