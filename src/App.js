@@ -4,22 +4,25 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Importa el archivo JSON de los asteroides
+import asteroidsDataJson from './asteroids_data.json';
+
 // Componente para dibujar las órbitas como líneas
-function Orbit({ radius }) {
+function Orbit({ radius, position = [0, 0, 0] }) {
   const points = useMemo(() => {
     const temp = [];
     for (let i = 0; i <= 64; i++) {
       const angle = (i / 64) * 2 * Math.PI;
       temp.push(
         new THREE.Vector3(
-          Math.cos(angle) * radius,
-          0,
-          Math.sin(angle) * radius
+          Math.cos(angle) * radius + position[0],
+          position[1],
+          Math.sin(angle) * radius + position[2]
         )
       );
     }
     return temp;
-  }, [radius]);
+  }, [radius, position]);
 
   const orbitGeometry = useMemo(
     () => new THREE.BufferGeometry().setFromPoints(points),
@@ -94,14 +97,22 @@ function Planet({
   setSelectedObject,
   speedMultiplier,
   setHoveredObject,
+  planetRef, // <-- Aceptamos planetRef
 }) {
-  const planetRef = useRef();
+  const planetGroupRef = useRef(); // <-- useRef() se llama incondicionalmente
   const planetMeshRef = useRef();
   const texture = useLoader(THREE.TextureLoader, planetData.textureUrl);
 
+  // Sincronizamos planetRef si está definido
+  useEffect(() => {
+    if (planetRef) {
+      planetRef.current = planetGroupRef.current;
+    }
+  }, [planetRef]);
+
   const handlePlanetClick = () => {
-    if (planetRef.current) {
-      setSelectedObject({ ref: planetRef, data: planetData });
+    if (planetGroupRef.current) {
+      setSelectedObject({ ref: planetGroupRef, data: planetData });
     }
   };
 
@@ -118,15 +129,15 @@ function Planet({
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime() * speedMultiplier;
     const orbitPosition = time * planetData.orbitSpeed;
-    planetRef.current.rotation.y += planetData.rotationSpeed * speedMultiplier;
-    planetRef.current.position.x =
+    planetGroupRef.current.rotation.y += planetData.rotationSpeed * speedMultiplier;
+    planetGroupRef.current.position.x =
       planetData.orbitRadius * Math.cos(orbitPosition);
-    planetRef.current.position.z =
+    planetGroupRef.current.position.z =
       planetData.orbitRadius * Math.sin(orbitPosition);
   });
 
   return (
-    <group ref={planetRef}>
+    <group ref={planetGroupRef}>
       <mesh
         onClick={handlePlanetClick}
         onPointerOver={handlePointerOver}
@@ -139,15 +150,15 @@ function Planet({
 
       {/* Renderizar las lunas si existen */}
       {planetData.moons &&
-      planetData.moons.map((moonData, index) => (
-        <Moon
-          key={index}
-          moonData={moonData}
-          speedMultiplier={speedMultiplier}
-          setSelectedObject={setSelectedObject}
-          setHoveredObject={setHoveredObject}
-        />
-      ))}
+        planetData.moons.map((moonData, index) => (
+          <Moon
+            key={index}
+            moonData={moonData}
+            speedMultiplier={speedMultiplier}
+            setSelectedObject={setSelectedObject}
+            setHoveredObject={setHoveredObject}
+          />
+        ))}
     </group>
   );
 }
@@ -159,20 +170,24 @@ function AsteroidWithRef({
   setSelectedObject,
   setHoveredObject,
   setAsteroidRefs,
+  earthRef, // <-- Aceptamos earthRef
 }) {
   const asteroidRef = useRef();
-  const orbitRadius =
-    parseFloat(asteroidData.close_approach_data[0].miss_distance.kilometers) /
-    100000;
-  const orbitSpeed = 0.05 / (orbitRadius / 10);
   const initialAngle = useMemo(() => Math.random() * 2 * Math.PI, []);
+
+  // Ajustamos para que los asteroides orbiten alrededor de la Tierra
+  const orbitRadius = 4 + Math.random() * 2; // Entre 4 y 6 unidades para evitar solapamiento con la Tierra
+  const orbitSpeed = 0.01 + Math.random() * 0.005; // Velocidad orbital
+
+  // Cargar la textura de la Luna para los asteroides
+  const asteroidTexture = useLoader(THREE.TextureLoader, 'textures/Moon/2k_moon.jpg'); // <-- Cambio: Usar textura de la Luna
 
   const handleAsteroidClick = () => {
     setSelectedObject({ ref: asteroidRef, data: asteroidData });
   };
 
   const handlePointerOver = () => {
-    setHoveredObject(asteroidData.name);
+    setHoveredObject(asteroidData.fullname || asteroidData.des || asteroidData.id);
     document.body.style.cursor = 'pointer';
   };
 
@@ -184,16 +199,26 @@ function AsteroidWithRef({
   useEffect(() => {
     setAsteroidRefs((prevRefs) => ({
       ...prevRefs,
-      [asteroidData.name]: asteroidRef,
+      [asteroidData.id]: asteroidRef,
     }));
-  }, [asteroidData.name, setAsteroidRefs]);
+  }, [asteroidData.id, setAsteroidRefs]);
 
   useFrame(({ clock }) => {
-    const time = clock.getElapsedTime() * speedMultiplier;
-    const orbitPosition = initialAngle + time * orbitSpeed;
-    const x = orbitRadius * Math.cos(orbitPosition);
-    const z = orbitRadius * Math.sin(orbitPosition);
-    asteroidRef.current.position.set(x, 0, z);
+    if (earthRef.current) {
+      const time = clock.getElapsedTime() * speedMultiplier;
+      const orbitPosition = initialAngle + time * orbitSpeed;
+      const x = orbitRadius * Math.cos(orbitPosition);
+      const z = orbitRadius * Math.sin(orbitPosition);
+
+      const earthPosition = new THREE.Vector3();
+      earthRef.current.getWorldPosition(earthPosition);
+
+      asteroidRef.current.position.set(
+        earthPosition.x + x,
+        earthPosition.y,
+        earthPosition.z + z
+      );
+    }
   });
 
   return (
@@ -203,8 +228,15 @@ function AsteroidWithRef({
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
     >
-      <sphereGeometry args={[0.1, 8, 8]} />
-      <meshStandardMaterial color={'white'} />
+      {/* Ajuste del factor de escala a 0.2 para hacer los asteroides más pequeños */}
+      <sphereGeometry args={[asteroidData.diameter * 2 || 0.5, 20, 20]} /> {/* <-- Tamaño ajustado y mayor detalle de geometría */}
+      
+      {/* Aplicar la textura de la Luna */}
+      <meshStandardMaterial
+        map={asteroidTexture}
+        // Si la textura no está cargada, usar un color gris para asegurar visibilidad
+        color={asteroidTexture ? undefined : 'gray'}
+      />
     </mesh>
   );
 }
@@ -315,13 +347,13 @@ function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
             key={index}
             style={{ cursor: 'pointer', marginBottom: '5px' }}
             onClick={() => {
-              const asteroidRef = asteroidRefs[asteroid.name];
-              if (asteroidRef) {
+              const asteroidRef = asteroidRefs[asteroid.id];
+              if (asteroidRef && asteroidRef.current) {
                 setSelectedObject({ ref: asteroidRef, data: asteroid });
               }
             }}
           >
-            {asteroid.name}
+            {asteroid.fullname || asteroid.des || asteroid.id}
           </li>
         ))}
       </ul>
@@ -329,13 +361,14 @@ function AsteroidList({ asteroids, setSelectedObject, asteroidRefs }) {
   );
 }
 
-// Componente PlanetInfo para mostrar la información del planeta o luna seleccionada
+// Componente PlanetInfo para mostrar la información del planeta, luna o asteroide seleccionado
 function PlanetInfo({ selectedObject, setSelectedObject }) {
   if (!selectedObject || !selectedObject.data) {
     return null;
   }
 
   const { data } = selectedObject;
+  const isAsteroid = data.diameter !== undefined;
   const isPlanet =
     data.textureUrl !== undefined && data.estimated_diameter === undefined;
 
@@ -353,7 +386,7 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
         width: '300px',
       }}
     >
-      <h2>{data.name}</h2>
+      <h2>{data.fullname || data.name}</h2>
       {isPlanet ? (
         <>
           <p>
@@ -369,31 +402,26 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
             <strong>Velocidad Orbital:</strong> {data.orbitSpeed}
           </p>
         </>
-      ) : (
+      ) : isAsteroid ? (
         <>
           <p>
-            <strong>Diámetro Estimado:</strong>{' '}
-            {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(
-              2
-            )}{' '}
-            km
+            <strong>Diámetro:</strong> {data.diameter} km
           </p>
           <p>
-            <strong>Distancia de Aproximación:</strong>{' '}
-            {parseFloat(
-              data.close_approach_data[0].miss_distance.kilometers
-            ).toFixed(2)}{' '}
-            km
+            <strong>Probabilidad de Impacto (IP):</strong> {data.ip}
           </p>
           <p>
-            <strong>Velocidad:</strong>{' '}
-            {parseFloat(
-              data.close_approach_data[0].relative_velocity
-                .kilometers_per_hour
-            ).toFixed(2)}{' '}
-            km/h
+            <strong>Velocidad relativa (v_inf):</strong> {data.v_inf} km/s
+          </p>
+          <p>
+            <strong>Número de impactos previstos (n_imp):</strong> {data.n_imp}
+          </p>
+          <p>
+            <strong>Última observación:</strong> {data.last_obs}
           </p>
         </>
+      ) : (
+        <p>Información no disponible.</p>
       )}
       <button onClick={() => setSelectedObject(null)} style={{ marginTop: '10px' }}>
         Cerrar
@@ -409,33 +437,21 @@ function SolarSystem() {
   const [asteroidRefs, setAsteroidRefs] = useState({});
   const orbitControlsRef = useRef();
   const [asteroidsData, setAsteroidsData] = useState([]);
+  const [showAsteroids, setShowAsteroids] = useState(true);
+  const earthRef = useRef(); // <-- Referencia a la Tierra
 
   const handleSpeedChange = (e) => {
     setSpeedMultiplier(parseFloat(e.target.value));
   };
 
-  const getCurrentDate = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  };
-
   useEffect(() => {
-    const startDate = getCurrentDate();
-    const apiKey = 'DEMO_KEY'; // Reemplaza 'DEMO_KEY' con tu propia API key de NASA
+    // Combinar los asteroides cercanos y potencialmente peligrosos
+    const combinedAsteroids = [
+      ...asteroidsDataJson.near_earth_asteroids,
+      ...asteroidsDataJson.potentially_hazardous_asteroids,
+    ];
 
-    fetch(
-      `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${startDate}&api_key=${apiKey}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setAsteroidsData(data.near_earth_objects[startDate] || []);
-      })
-      .catch((error) => {
-        console.error('Error fetching asteroid data:', error);
-      });
+    setAsteroidsData(combinedAsteroids);
   }, []);
 
   // Datos de los planetas con las URLs de las texturas y lunas
@@ -616,6 +632,17 @@ function SolarSystem() {
           zIndex: 1,
         }}
       />
+      <button
+        onClick={() => setShowAsteroids(!showAsteroids)}
+        style={{
+          position: 'absolute',
+          top: '60px',
+          left: '20px',
+          zIndex: 1,
+        }}
+      >
+        {showAsteroids ? 'Ocultar Asteroides' : 'Mostrar Asteroides'}
+      </button>
 
       {/* Mostrar el nombre del objeto sobre el que estamos pasando el mouse */}
       {hoveredObject && (
@@ -634,17 +661,19 @@ function SolarSystem() {
         </div>
       )}
 
-      {/* Mostrar información del planeta o luna seleccionada */}
+      {/* Mostrar información del planeta, luna o asteroide seleccionado */}
       <PlanetInfo
         selectedObject={selectedObject}
         setSelectedObject={setSelectedObject}
       />
 
-      <AsteroidList
-        asteroids={asteroidsData}
-        setSelectedObject={setSelectedObject}
-        asteroidRefs={asteroidRefs}
-      />
+      {showAsteroids && (
+        <AsteroidList
+          asteroids={asteroidsData}
+          setSelectedObject={setSelectedObject}
+          asteroidRefs={asteroidRefs}
+        />
+      )}
 
       <Canvas
         camera={{ position: [10, 10, 10], fov: 50 }}
@@ -652,8 +681,12 @@ function SolarSystem() {
         style={{ background: 'black', height: '100vh' }}
         onPointerMissed={resetCamera}
       >
-        <ambientLight intensity={0.3} />
+        {/* Iluminación Mejorada */}
+        <ambientLight intensity={0.5} />
         <pointLight position={[0, 0, 0]} intensity={1.5} />
+        <directionalLight position={[100, 100, 100]} intensity={0.5} />
+        <directionalLight position={[-100, -100, -100]} intensity={0.5} />
+
         <OrbitControls ref={orbitControlsRef} />
         <Stars
           radius={100}
@@ -685,19 +718,22 @@ function SolarSystem() {
             planetData={planetData}
             speedMultiplier={speedMultiplier}
             setHoveredObject={setHoveredObject}
+            planetRef={planetData.name === 'Earth' ? earthRef : undefined} // <-- Pasamos earthRef
           />
         ))}
 
-        {asteroidsData.map((asteroidData, index) => (
-          <AsteroidWithRef
-            key={index}
-            asteroidData={asteroidData}
-            speedMultiplier={speedMultiplier}
-            setSelectedObject={setSelectedObject}
-            setHoveredObject={setHoveredObject}
-            setAsteroidRefs={setAsteroidRefs}
-          />
-        ))}
+        {showAsteroids &&
+          asteroidsData.map((asteroidData, index) => (
+            <AsteroidWithRef
+              key={index}
+              asteroidData={asteroidData}
+              speedMultiplier={speedMultiplier}
+              setSelectedObject={setSelectedObject}
+              setHoveredObject={setHoveredObject}
+              setAsteroidRefs={setAsteroidRefs}
+              earthRef={earthRef} // <-- Pasamos earthRef
+            />
+          ))}
       </Canvas>
     </div>
   );
