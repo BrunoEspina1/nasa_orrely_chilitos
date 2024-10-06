@@ -2,9 +2,48 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
+import { useProgress } from '@react-three/drei';
+import { Suspense } from 'react';
+
 import * as THREE from 'three';
 
 // Componente para dibujar las órbitas como líneas
+function LoadingScreen() {
+  const { progress } = useProgress();
+  const texturesLoaded = progress === 100;
+  const worldsLoaded = texturesLoaded; // Puedes ajustar esto si necesitas una lógica diferente
+
+  const allLoaded =  texturesLoaded && worldsLoaded;
+
+  if (allLoaded) {
+    return null; // Oculta la pantalla de carga cuando todo está cargado
+  }
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'black',
+        color: 'white',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <h1>Cargando...</h1>
+      <p>Texturas cargadas: {texturesLoaded ? 'Sí' : 'No'}</p>
+      <p>Mundos cargados: {worldsLoaded ? 'Sí' : 'No'}</p>
+      <p>Progreso: {Math.round(progress)}%</p>
+    </div>
+  );
+}
+
 function Orbit({ radius }) {
   const points = useMemo(() => {
     const temp = [];
@@ -372,9 +411,7 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
         <>
           <p>
             <strong>Diámetro Estimado:</strong>{' '}
-            {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(
-              2
-            )}{' '}
+            {data.estimated_diameter.kilometers.estimated_diameter_max.toFixed(2)}{' '}
             km
           </p>
           <p>
@@ -387,8 +424,7 @@ function PlanetInfo({ selectedObject, setSelectedObject }) {
           <p>
             <strong>Velocidad:</strong>{' '}
             {parseFloat(
-              data.close_approach_data[0].relative_velocity
-                .kilometers_per_hour
+              data.close_approach_data[0].relative_velocity.kilometers_per_hour
             ).toFixed(2)}{' '}
             km/h
           </p>
@@ -408,6 +444,7 @@ function SolarSystem() {
   const [asteroidRefs, setAsteroidRefs] = useState({});
   const orbitControlsRef = useRef();
   const [asteroidsData, setAsteroidsData] = useState([]);
+  const { progress } = useProgress();
 
   const handleSpeedChange = (e) => {
     setSpeedMultiplier(parseFloat(e.target.value));
@@ -428,14 +465,25 @@ function SolarSystem() {
     fetch(
       `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${startDate}&api_key=${apiKey}`
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then((data) => {
+        console.log('Datos de asteroides recibidos:', data);
         setAsteroidsData(data.near_earth_objects[startDate] || []);
       })
       .catch((error) => {
-        console.error('Error fetching asteroid data:', error);
+        console.error('Error al obtener datos de asteroides:', error);
       });
   }, []);
+
+  const texturesLoaded = progress === 100;
+  const worldsLoaded = texturesLoaded;
+
+  const allLoaded = texturesLoaded && worldsLoaded;
 
   // Datos de los planetas con las URLs de las texturas y lunas
   const planetsData = [
@@ -600,6 +648,7 @@ function SolarSystem() {
 
   return (
     <div style={{ position: 'relative', height: '100vh' }}>
+      {!allLoaded && <LoadingScreen  />}
       <input
         type="range"
         min="1"
@@ -677,26 +726,29 @@ function SolarSystem() {
             <Orbit key={`orbit-${index}`} radius={planet.orbitRadius} />
           ))}
 
-        {planetsData.map((planetData, index) => (
-          <Planet
-            key={index}
-            setSelectedObject={setSelectedObject}
-            planetData={planetData}
-            speedMultiplier={speedMultiplier}
-            setHoveredObject={setHoveredObject}
-          />
-        ))}
+        {/* Envuelve los planetas y asteroides dentro de Suspense */}
+        <Suspense fallback={null}>
+          {planetsData.map((planetData, index) => (
+            <Planet
+              key={index}
+              setSelectedObject={setSelectedObject}
+              planetData={planetData}
+              speedMultiplier={speedMultiplier}
+              setHoveredObject={setHoveredObject}
+            />
+          ))}
 
-        {asteroidsData.map((asteroidData, index) => (
-          <AsteroidWithRef
-            key={index}
-            asteroidData={asteroidData}
-            speedMultiplier={speedMultiplier}
-            setSelectedObject={setSelectedObject}
-            setHoveredObject={setHoveredObject}
-            setAsteroidRefs={setAsteroidRefs}
-          />
-        ))}
+          {asteroidsData.map((asteroidData, index) => (
+            <AsteroidWithRef
+              key={index}
+              asteroidData={asteroidData}
+              speedMultiplier={speedMultiplier}
+              setSelectedObject={setSelectedObject}
+              setHoveredObject={setHoveredObject}
+              setAsteroidRefs={setAsteroidRefs}
+            />
+          ))}
+        </Suspense>
       </Canvas>
     </div>
   );
