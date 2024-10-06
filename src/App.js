@@ -139,16 +139,15 @@ function Planet({
 
       {/* Renderizar las lunas si existen */}
       {planetData.moons &&
-        planetData.moons.map((moonData, index) => (
-          <group key={index}>
-            <Moon
-              moonData={moonData}
-              speedMultiplier={speedMultiplier}
-              setSelectedObject={setSelectedObject}
-              setHoveredObject={setHoveredObject}
-            />
-          </group>
-        ))}
+      planetData.moons.map((moonData, index) => (
+        <Moon
+          key={index}
+          moonData={moonData}
+          speedMultiplier={speedMultiplier}
+          setSelectedObject={setSelectedObject}
+          setHoveredObject={setHoveredObject}
+        />
+      ))}
     </group>
   );
 }
@@ -258,9 +257,10 @@ function CameraController({ selectedObject, orbitControlsRef }) {
 
   useEffect(() => {
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
-      const objectPosition = selectedObject.ref.current.position.clone();
+      const objectWorldPosition = new THREE.Vector3();
+      selectedObject.ref.current.getWorldPosition(objectWorldPosition);
       const offset = new THREE.Vector3(5, 5, 5);
-      const desiredCameraPosition = objectPosition.clone().add(offset);
+      const desiredCameraPosition = objectWorldPosition.clone().add(offset);
       setTargetCameraPosition(desiredCameraPosition);
       setIsMovingToObject(true);
     } else {
@@ -279,9 +279,10 @@ function CameraController({ selectedObject, orbitControlsRef }) {
       }
     }
     if (selectedObject && selectedObject.ref && selectedObject.ref.current) {
-      const objectPosition = selectedObject.ref.current.position;
+      const objectWorldPosition = new THREE.Vector3();
+      selectedObject.ref.current.getWorldPosition(objectWorldPosition);
       if (orbitControlsRef.current) {
-        orbitControlsRef.current.target.copy(objectPosition);
+        orbitControlsRef.current.target.copy(objectWorldPosition);
         orbitControlsRef.current.update();
       }
     }
